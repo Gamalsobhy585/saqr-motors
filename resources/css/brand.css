@@ -1,0 +1,18 @@
+
+@theme {
+    --color-saqr-50: #fef2f2;
+    --color-saqr-100: #fee2e2;
+    --color-saqr-200: #fecaca;
+    --color-saqr-300: #fca5a5;
+    --color-saqr-400: #f87171;
+    --color-saqr-500: #ef4444;
+    --color-saqr-600: #dc2626;
+    --color-saqr-700: #b91c1c;
+    --color-saqr-800: #991b1b;
+    --color-saqr-900: #7f1d1d;
+
+    --color-obsidian: #111827;
+    --color-graphite: #374151;
+    --color-silver: #d1d5db;
+    --color-saqr-white: #f9fafb;
+}
