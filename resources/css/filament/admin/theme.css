@@ -109,18 +109,7 @@ body:has(.saqr-login-brand) .fi-simple-header .fi-logo {
     border-color: #374151;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
-    .saqr-auth-toolbar {
-        top: 0.75rem;
-        right: 0.75rem;
-        gap: 0.5rem;
-    }
 
-    body:has(.saqr-login-brand) .fi-simple-main {
-        margin-top: 3.5rem;
-    }
-}
 [x-cloak] {
     display: none !important;
 }
@@ -137,4 +126,24 @@ body:has(.saqr-login-brand) .fi-simple-header .fi-logo {
 
 .saqr-theme-button:hover {
     background: rgba(220, 38, 38, 0.1);
+}
+
+
+
+
+
+
+
+
+/* Responsive */
+@media (max-width: 640px) {
+    .saqr-auth-toolbar {
+        top: 0.75rem;
+        right: 0.75rem;
+        gap: 0.5rem;
+    }
+
+    body:has(.saqr-login-brand) .fi-simple-main {
+        margin-top: 3.5rem;
+    }
 }

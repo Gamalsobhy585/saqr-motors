@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksEditors;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Brand extends Model
 {
+    use HasFactory,TracksEditors;
+
+
     protected $fillable = [
         'name', 'slug', 'tagline', 'description', 'logo_path',
         'cover_path', 'website_url', 'is_active', 'sort_order',
@@ -35,4 +41,17 @@ class Brand extends Model
     {
         return $this->hasMany(Enquiry::class);
     }
+   public function getLogoUrlAttribute(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        if (str_starts_with($this->logo_path, 'images/brands/')) {
+            return asset($this->logo_path);
+        }
+
+        return Storage::disk('public')->url($this->logo_path);
+    }
+
 }
