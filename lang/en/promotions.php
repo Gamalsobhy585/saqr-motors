@@ -1,0 +1,36 @@
+<?php
+
+return [
+    'singular' => 'Promotion',
+    'plural' => 'Promotions',
+    'details' => 'Promotion details',
+    'offer' => 'Offer and visibility',
+    'media' => 'Promotion image',
+    'audit' => 'Record information',
+    'title' => 'Title',
+    'title_en' => 'Title (English)',
+    'title_ar' => 'Title (Arabic)',
+    'description' => 'Description',
+    'description_en' => 'Description (English)',
+    'description_ar' => 'Description (Arabic)',
+    'brand' => 'Brand',
+    'motorcycle' => 'Motorcycle',
+    'all_brand_models' => 'All motorcycles in this brand',
+    'discount_percent' => 'Discount',
+    'starts_at' => 'Start date',
+    'ends_at' => 'End date',
+    'image' => 'Image',
+    'active' => 'Active',
+    'sort_order' => 'Display order',
+    'created_by' => 'Created by',
+    'updated_by' => 'Updated by',
+    'created_at' => 'Created at',
+    'updated_at' => 'Updated at',
+    'validation' => [
+        'brand_not_allowed' => 'You cannot manage promotions for the selected brand.',
+        'motorcycle_brand_mismatch' => 'The motorcycle must belong to the selected brand.',
+        'invalid_date_range' => 'The end date must be on or after the start date.',
+            'overlapping_period' =>
+                'This motorcycle already has an active promotion during the selected period. Please choose different dates or deactivate the conflicting promotion.',
+    ],
+];
