@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             BrandUserSeeder::class,
             MotorcycleSeeder::class,
+            ServiceSeeder::class,
         ]);
     }
 }
