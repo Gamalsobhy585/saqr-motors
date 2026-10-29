@@ -1,6 +1,8 @@
 
-<div class="saqr-auth-toolbar">
-
+<div
+    class="saqr-auth-toolbar {{ ($insideTopbar ?? false) ? 'saqr-auth-toolbar--panel' : 'saqr-auth-toolbar--floating' }}"
+    dir="ltr"
+>
     {{-- Language switcher --}}
     <form
         method="POST"

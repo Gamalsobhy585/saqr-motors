@@ -53,23 +53,35 @@ class AdminPanelProvider extends PanelProvider
             asset('images/logos/saqr-dark.png')
         )
 
-        ->brandLogoHeight('5rem')
+        ->brandLogoHeight('4rem')
 
         ->darkMode(true)
         ->defaultThemeMode(ThemeMode::Light)
-        ->themeSwitcher(true)
+        ->themeSwitcher(false)
+        ->globalSearch(false)
 
+       
+
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
+                fn () => view('filament.auth.preferences')
+            )
         ->renderHook(
             PanelsRenderHook::BODY_START,
             fn () => request()->routeIs('filament.admin.auth.login')
-                ? view('filament.auth.toolbar')
+                ? view('filament.auth.toolbar', [
+                    'insideTopbar' => false,
+                ])
                 : ''
         )
-
         ->renderHook(
-            PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
-            fn () => view('filament.auth.preferences')
+            PanelsRenderHook::USER_MENU_BEFORE,
+            fn () => view('filament.auth.toolbar', [
+                'insideTopbar' => true,
+            ])
         )
+
+   
 
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -91,9 +103,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                SetLocale::class,   
+                SetLocale::class,
+            ], isPersistent: true)
 
-            ])
+
             ->authMiddleware([
                 Authenticate::class,
             ]);

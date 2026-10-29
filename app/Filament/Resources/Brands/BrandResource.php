@@ -4,12 +4,13 @@ namespace App\Filament\Resources\Brands;
 
 use App\Filament\Resources\Brands\Pages;
 use App\Filament\Resources\Brands\Schemas\BrandForm;
+use App\Filament\Resources\Brands\Schemas\BrandInfolist;
 use App\Filament\Resources\Brands\Tables\BrandsTable;
 use App\Models\Brand;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables\Table;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
 
 class BrandResource extends Resource
 {
@@ -26,6 +27,11 @@ class BrandResource extends Resource
     {
         return BrandForm::configure($schema);
     }
+    public static function infolist(Schema $schema): Schema
+    {
+        return BrandInfolist::configure($schema);
+    }
+
 
     public static function table(Table $table): Table
     {
@@ -41,4 +47,19 @@ class BrandResource extends Resource
             'edit' => Pages\EditBrand::route('/{record}/edit'),
         ];
     }
+    public static function getNavigationLabel(): string
+    {
+        return __('saqr.brands.plural');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('saqr.brands.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('saqr.brands.plural');
+    }
+
 }
