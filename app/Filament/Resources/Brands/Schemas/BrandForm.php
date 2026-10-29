@@ -189,7 +189,7 @@ class BrandForm
             ->panelLayout('compact')
             ->maxSize($maxSize)
             ->fetchFileInformation(false)
-            ->preventFilePathTampering()
+            
             ->getUploadedFileUsing(self::resolveStoredFile());
     }
 

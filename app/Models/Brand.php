@@ -53,5 +53,9 @@ class Brand extends Model
 
         return Storage::disk('public')->url($this->logo_path);
     }
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
 }

@@ -31,7 +31,10 @@ class BrandResource extends Resource
     {
         return BrandInfolist::configure($schema);
     }
-
+    public static function getRecordRouteKeyName(): ?string
+    {
+        return 'slug';
+    }
 
     public static function table(Table $table): Table
     {

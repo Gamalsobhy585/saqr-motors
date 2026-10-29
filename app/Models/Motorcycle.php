@@ -4,15 +4,20 @@ namespace App\Models;
 
 use App\Enums\MotorcycleAvailability;
 use App\Enums\MotorcycleCategory;
+use App\Models\Concerns\TracksEditors;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+
 
 class Motorcycle extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes, TracksEditors,HasUuids;
 
     protected $fillable = [
         'brand_id', 'name', 'slug', 'category', 'description',
@@ -38,23 +43,52 @@ class Motorcycle extends Model
         return $this->belongsTo(Brand::class);
     }
 
+    public function specification(): HasOne
+    {
+        return $this->hasOne(MotorcycleSpec::class);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(MotorcycleImage::class);
+    }
+
+    public function primaryImage(): HasOne
+    {
+        return $this->hasOne(MotorcycleImage::class)->where('is_primary', true);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function images(): HasMany
+    public function updater(): BelongsTo
     {
-        return $this->hasMany(MotorcycleImage::class)->orderBy('sort_order')->orderBy('id');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function specs(): HasOne
+    /** After Filament has saved related images, make the first image primary. */
+    public function syncPrimaryImage(): void
     {
-        return $this->hasOne(MotorcycleSpec::class);
+        DB::transaction(function (): void {
+            $this->images()->where('is_primary', true)->update(['is_primary' => false]);
+
+            $first = $this->images()->orderBy('sort_order')->orderBy('id')->first();
+
+            if ($first) {
+                $first->is_primary = true;
+                $first->save();
+            }
+        });
+    }
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
     }
 
-    public function enquiries(): HasMany
-    {
-        return $this->hasMany(Enquiry::class);
-    }
 }
