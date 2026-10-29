@@ -32,4 +32,9 @@ class CreateUser extends CreateRecord
 
         return $user;
     }
+    protected function getRedirectUrl(): string
+    {
+        return UserResource::getUrl('index');
+    }
+    
 }

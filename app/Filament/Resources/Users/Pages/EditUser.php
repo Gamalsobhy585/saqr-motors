@@ -31,4 +31,8 @@ class EditUser extends EditRecord
 
         return $record;
     }
+    protected function getRedirectUrl(): string
+    {
+        return UserResource::getUrl('index');
+    }
 }

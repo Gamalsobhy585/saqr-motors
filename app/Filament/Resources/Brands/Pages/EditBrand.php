@@ -16,6 +16,9 @@ class EditBrand extends EditRecord
             ViewAction::make(),
         ];
     }
-
+    protected function getRedirectUrl(): string
+    {
+        return BrandResource::getUrl('index');
+    }
     
 }

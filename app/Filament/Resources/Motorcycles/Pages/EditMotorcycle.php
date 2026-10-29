@@ -37,4 +37,9 @@ class EditMotorcycle extends EditRecord
     {
         return [DeleteAction::make()];
     }
+    protected function getRedirectUrl(): string
+    {
+        return MotorcycleResource::getUrl('index');
+    }
+
 }

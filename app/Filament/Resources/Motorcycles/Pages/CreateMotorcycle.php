@@ -32,4 +32,9 @@ class CreateMotorcycle extends CreateRecord
     {
         $this->record->syncPrimaryImage();
     }
+    protected function getRedirectUrl(): string
+    {
+        return MotorcycleResource::getUrl('index');
+    }
+
 }
