@@ -1,0 +1,101 @@
+
+<?php
+
+return [
+    'auth' => [
+        'signing_in' => 'Signing in...',
+    ],
+
+    'brands' => [
+        'singular' => 'Brand',
+        'plural' => 'Brands',
+        'information' => 'Brand Information',
+        'media' => 'Brand Media',
+        'visibility' => 'Visibility & Ordering',
+        'name' => 'Name',
+        'slug' => 'Slug',
+        'logo' => 'Logo',
+        'cover' => 'Cover Image',
+        'tagline' => 'Tagline',
+        'description' => 'Description',
+        'website' => 'Website URL',
+        'active' => 'Active',
+        'order' => 'Sort Order',
+        'created_at' => 'Created At',
+        'updated_at' =>'Updated At'
+    ],
+
+    'users' => [
+        'singular' => 'User',
+        'plural' => 'Users',
+        'information' => 'Account Information',
+        'assignments' => 'Brand Assignments',
+        'password_section' => 'Password',
+        'name' => 'Full Name',
+        'email' => 'Email Address',
+        'role' => 'Role',
+        'brands' => 'Assigned Brands',
+        'active' => 'Active Account',
+        'password' => 'Password',
+        'confirm_password' => 'Confirm Password',
+        'created_at' => 'Created At',
+        'password_hint' => 'Leave blank when editing to keep the current password.',
+        'brands_hint' => 'Data Entry users can manage assigned brands. Admins can manage all brands.',
+    ],
+
+    'motorcycles' => [
+        'singular' => 'Motorcycle',
+        'plural' => 'Motorcycles',
+        'details' => 'Motorcycle Details',
+        'specifications' => 'Technical Specifications',
+        'gallery' => 'Image Gallery',
+        'gallery_hint' => 'Drag to reorder images. The first image becomes the primary image.',
+        'name' => 'Name',
+        'slug' => 'Slug',
+        'brand' => 'Brand',
+        'photo' => 'Photo',
+        'category' => 'Category',
+        'model_year' => 'Model Year',
+        'price' => 'Starting Price',
+        'currency' => 'Currency',
+        'availability' => 'Availability',
+        'description' => 'Description',
+        'featured' => 'Featured',
+        'published' => 'Published',
+        'order' => 'Sort Order',
+        'created_at' => 'Created At',
+        'engine_cc' => 'Engine (cc)',
+        'engine_type' => 'Engine Type',
+        'transmission' => 'Transmission',
+        'power_hp' => 'Power (hp)',
+        'torque_nm' => 'Torque (Nm)',
+        'weight_kg' => 'Weight (kg)',
+        'fuel_capacity' => 'Fuel Capacity (L)',
+        'seat_height' => 'Seat Height (mm)',
+        'additional_specs' => 'Additional Specifications',
+        'spec_key' => 'Specification',
+        'spec_value' => 'Value',
+        'images' => 'Motorcycle Images',
+        'image' => 'Image',
+        'alt_text' => 'Alternative Text',
+        'add_image' => 'Add Image',
+    ],
+
+    'roles' => [
+        'admin' => 'Admin',
+        'data_entry' => 'Data Entry',
+    ],
+
+    'categories' => [
+        'urban' => 'Urban',
+        'adventure' => 'Adventure',
+        'performance' => 'Performance',
+        'premium' => 'Premium',
+    ],
+
+    'availability' => [
+        'available' => 'Available',
+        'coming_soon' => 'Coming Soon',
+        'out_of_stock' => 'Out of Stock',
+    ],
+];

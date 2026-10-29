@@ -56,8 +56,15 @@ class BrandForm
 
                     TextInput::make('website_url')
                         ->label(__('saqr.brands.website'))
+                        ->placeholder('https://example.com')
                         ->url()
                         ->maxLength(2048)
+                        ->rule(fn (): Closure => self::validateWebsiteUrl())
+                        ->dehydrateStateUsing(
+                            fn (?string $state): ?string => filled($state)
+                                ? rtrim(trim($state), '/')
+                                : null
+                        )
                         ->columnSpanFull(),
                 ])
                 ->columns(2),
@@ -84,6 +91,86 @@ class BrandForm
                 ])
                 ->columns(2),
         ]);
+    }
+
+    /**
+     * Strict website URL validation:
+     *  1. http/https only, no embedded credentials
+     *  2. host is a well-formed domain with a real TLD (no localhost / bare IPs)
+     *  3. host resolves in DNS
+     *  4. host does not resolve to a private/reserved IP (SSRF protection)
+     *
+     * Returns the actual validation closure (Filament's ->rule() expects to
+     * receive it from a factory closure, see configure()).
+     */
+    protected static function validateWebsiteUrl(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            if (blank($value)) {
+                return;
+            }
+
+            $invalid = fn () => $fail(__('saqr.brands.website_invalid'));
+
+            $parts = parse_url(trim((string) $value));
+
+            // 1. Scheme + structure
+            if (
+                $parts === false
+                || ! in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)
+                || empty($parts['host'])
+                || isset($parts['user'])
+                || isset($parts['pass'])
+            ) {
+                $invalid();
+
+                return;
+            }
+
+            // Support IDN (Arabic / non-ASCII) domains
+            $host = strtolower($parts['host']);
+
+            if (function_exists('idn_to_ascii')) {
+                $ascii = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+
+                if ($ascii !== false) {
+                    $host = $ascii;
+                }
+            }
+
+            // 2. Well-formed domain with a real TLD
+            if (! preg_match('/^(?!-)([a-z0-9-]{1,63}(?<!-)\.)+[a-z]{2,63}$/', $host)) {
+                $invalid();
+
+                return;
+            }
+
+            // 3. DNS must resolve (trailing dot avoids local search-domain suffixes)
+            $fqdn = $host . '.';
+
+            if (
+                ! checkdnsrr($fqdn, 'A')
+                && ! checkdnsrr($fqdn, 'AAAA')
+                && ! checkdnsrr($fqdn, 'CNAME')
+            ) {
+                $fail(__('saqr.brands.website_unreachable'));
+
+                return;
+            }
+
+            // 4. Block private / loopback / reserved IPs
+            foreach (gethostbynamel($host) ?: [] as $ip) {
+                if (! filter_var(
+                    $ip,
+                    FILTER_VALIDATE_IP,
+                    FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+                )) {
+                    $invalid();
+
+                    return;
+                }
+            }
+        };
     }
 
     protected static function imageUpload(

@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfile;
 use App\Http\Middleware\SetLocale;
+use Filament\Auth\Pages\Login;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -21,8 +23,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Auth\Pages\Login;
-
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -59,6 +59,8 @@ class AdminPanelProvider extends PanelProvider
         ->defaultThemeMode(ThemeMode::Light)
         ->themeSwitcher(false)
         ->globalSearch(false)
+        ->profile(EditProfile::class, isSimple: false)
+        ->favicon(asset('images/logos/saqr-favicon.png'))
 
        
 
