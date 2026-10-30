@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\Brands\Tables;
 
 use App\Models\Brand;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
@@ -18,6 +16,7 @@ class BrandsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->selectable(false)
             ->defaultSort('sort_order')
             ->columns([
                 ImageColumn::make('logo_path')
@@ -63,11 +62,6 @@ class BrandsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

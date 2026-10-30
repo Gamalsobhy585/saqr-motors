@@ -69,30 +69,23 @@ class UserForm
             // Password
             Section::make(__('saqr.users.password_section'))
                 ->schema([
-                    TextInput::make('password')
-                        ->label(__('saqr.users.password'))
-                        ->password()
-                        ->revealable()
-                        ->required(
-                            fn (string $operation): bool =>
-                                $operation === 'create'
-                        )
-                        ->rules([
-                            Password::min(12)
-                                ->letters()
-                                ->mixedCase()
-                                ->numbers()
-                                ->symbols()
-                                ,
-                        ])
-                        ->confirmed()
-                        ->dehydrated(
-                            fn (?string $state): bool =>
-                                filled($state)
-                        )
-                        ->helperText(
-                            __('saqr.users.password_hint')
-                        ),
+                  TextInput::make('password')
+                    ->label(__('saqr.users.password'))
+                    ->password()
+                    ->revealable()
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->minLength(8)
+                    ->rules([
+                        Password::min(8)
+                            ->letters()
+                            ->mixedCase()
+                            ->numbers()
+                            ->symbols()
+                            ->uncompromised(),
+                    ])
+                    ->confirmed()
+                    ->dehydrated(fn (?string $state): bool => filled($state))
+                    ->helperText(__('saqr.users.password_hint')),
 
                     TextInput::make('password_confirmation')
                         ->label(__('saqr.users.confirm_password'))

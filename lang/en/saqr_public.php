@@ -1,0 +1,78 @@
+<?php
+
+return [
+    'nav' => [
+        'navigation' => 'Main navigation', 'menu' => 'Open menu', 'home' => 'Home',
+        'motorcycles' => 'Motorcycles', 'prices' => 'Prices', 'promotions' => 'Promotions',
+        'categories' => 'Categories', 'services' => 'Services', 'locations' => 'Our Locations',
+        'all_offers' => 'All current offers', 'current_events' => 'Current offers & events',
+        'under_price' => 'Under :amount EGP',
+        'financing' => 'Financial Plans',
+    ],
+    'hero' => [
+        'headline_one' => 'OWN THE', 'headline_two' => 'ROAD',
+        'description' => 'Find your next motorcycle. Explore trusted brands, discover current offers, and book your test ride with SAQR Motors.',
+    ],
+    'sections' => [
+        'brands' => 'Explore our brands', 'brands_subtitle' => 'Discover motorcycles from every brand in our showroom.',
+        'latest' => 'Latest motorcycles', 'latest_subtitle' => 'Explore the latest published motorcycles and their current offers.',
+        'all_offers' => 'All current offers', 'current_events' => 'Current offers & events',
+        'under_price' => 'Under :amount EGP',
+        'financing' => 'Flexible financial plans', 'financing_subtitle' => 'Choose an installment plan that suits your needs.',
+        'services' => 'Our services', 'locations' => 'Find us nearby',
+        'locations_subtitle' => 'Visit our locations across Egypt.',
+        'catalog' => 'Explore motorcycles', 'catalog_subtitle' => 'Filter by brand, category, price, and available promotions.',
+        'specifications' => 'Technical specifications',
+        'featured' => 'Featured Motorcycles',
+        'featured_subtitle' => 'Handpicked motorcycles from our collection.',
+    ],
+    'categories' => ['urban' => 'Urban', 'adventure' => 'Adventure', 'performance' => 'Performance', 'premium' => 'Premium'],
+    'availability' => ['available' => 'Available', 'comingsoon' => 'Coming soon', 'outofstock' => 'Out of stock'],
+    'labels' => [
+        'price_presets' => 'Quick price range', 'any_price' => 'Any price',
+        'promotion_event' => 'Promotion / event',
+        'starting_from' => 'Starting from', 'ask_price' => 'Contact for price', 'motorcycles_count' => 'motorcycles',
+        'promotion' => 'Special offer', 'filters' => 'Filters', 'results' => 'Results',
+        'brand' => 'Brand', 'category' => 'Category', 'all_brands' => 'All brands',
+        'all_categories' => 'All categories', 'price_min' => 'Min price (EGP)', 'price_max' => 'Max price (EGP)',
+        'promotions_only' => 'With active promotions only', 'sort' => 'Sort by',
+        'no_results' => 'No motorcycles match these filters.', 'no_motorcycles' => 'No published motorcycles yet.',
+        'no_plans' => 'No active financial plans at the moment.', 'no_locations' => 'Locations will be added soon.',
+        'down_payment' => 'Down payment', 'duration' => 'Installments', 'months' => 'months',
+        'installment_plan' => 'Installment plan',
+        'finance_disclaimer' => 'Financial plans are illustrative. Interest, fees, eligibility, and final terms must be confirmed before committing.',
+        'booking_unavailable' => 'Test rides are only available for in-stock motorcycles when locations are configured.',
+        'ride_note' => 'Select your preferred 30-minute slot. This is a booking request; the branch will confirm availability.',
+        'choose_location' => 'Select location', 'choose_time' => 'Select time',
+    ],
+    'sort' => ['latest' => 'Newest', 'price_asc' => 'Price: low to high', 'price_desc' => 'Price: high to low'],
+    'actions' => [
+        'explore_motorcycles' => 'Explore motorcycles', 'discover_more' => 'Discover more',
+        'details' => 'View details', 'apply_filters' => 'Apply filters', 'reset' => 'Reset',
+        'all_services' => 'All services', 'open_map' => 'View on map', 'book_ride' => 'Book a test ride',
+        'contact_us' => 'Contact us', 'close' => 'Close', 'sending' => 'Sending...',
+        'send_booking' => 'Send booking request', 'send_message' => 'Send message',
+    ],
+    'fields' => [
+        'name' => 'Full name', 'email' => 'Email', 'phone' => 'Egyptian mobile',
+        'location' => 'Location', 'date' => 'Date', 'time' => 'Time',
+        'notes' => 'Additional notes (optional)', 'message' => 'Message',
+    ],
+    'specs' => [
+        'engine_cc' => 'Engine (cc)', 'engine_type' => 'Engine type', 'transmission' => 'Transmission',
+        'power_hp' => 'Power (hp)', 'torque_nm' => 'Torque (Nm)', 'weight_kg' => 'Weight (kg)',
+        'fuel_capacity' => 'Fuel capacity (L)', 'seat_height' => 'Seat height (mm)',
+    ],
+    'validation' => [
+        'future' => 'Please choose a future test-ride time.',
+        'slot_taken' => 'That motorcycle is already booked at this location and time. Select another slot.',
+    ],
+    'messages' => [
+        'booking_received' => 'Your test-ride request has been received. The branch will contact you to confirm.',
+        'contact_received' => 'Your enquiry has been sent. Our team will contact you soon.',
+    ],
+    'footer' => [
+        'tagline' => 'Move with confidence. Explore motorcycles, services, and flexible plans with SAQR Motors.',
+        'quick_links' => 'Quick links', 'follow' => 'Follow us', 'rights' => 'All rights reserved.',
+    ],
+];

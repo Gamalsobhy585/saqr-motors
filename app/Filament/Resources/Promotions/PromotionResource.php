@@ -25,8 +25,7 @@ class PromotionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title_en';
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedTag;
-
+    protected static string|\BackedEnum|null $navigationIcon = 'lucide-badge-percent';
     protected static ?int $navigationSort = 7;
 
     public static function getNavigationLabel(): string
