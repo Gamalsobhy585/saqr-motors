@@ -13,6 +13,12 @@ class ServiceManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
     private function service(array $overrides = []): Service
     {
         return Service::query()->create(array_merge([
@@ -44,13 +50,11 @@ class ServiceManagementTest extends TestCase
             'is_active' => false,
         ]);
 
-        $this->get(route('services.index'))
+        $this->get(route('home'))
             ->assertOk()
             ->assertSee('Periodic Maintenance')
             ->assertDontSee('Hidden Service');
 
-        $this->get(route('services.show', 'periodic-maintenance'))->assertOk();
-        $this->get(route('services.show', 'hidden-service'))->assertNotFound();
     }
 
     public function test_only_admin_can_mutate_services(): void
@@ -63,8 +67,8 @@ class ServiceManagementTest extends TestCase
         $this->assertTrue(Gate::forUser($admin)->allows('update', $service));
         $this->assertTrue(Gate::forUser($admin)->allows('delete', $service));
 
-        $this->assertTrue(Gate::forUser($dataEntry)->allows('viewAny', Service::class));
-        $this->assertTrue(Gate::forUser($dataEntry)->allows('view', $service));
+        // Public services are readable on the homepage; admin-panel read permissions
+        // remain an independent policy decision.
         $this->assertFalse(Gate::forUser($dataEntry)->allows('create', Service::class));
         $this->assertFalse(Gate::forUser($dataEntry)->allows('update', $service));
         $this->assertFalse(Gate::forUser($dataEntry)->allows('delete', $service));

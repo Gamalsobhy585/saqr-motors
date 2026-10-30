@@ -13,6 +13,9 @@ use App\Models\Motorcycle;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -24,6 +27,7 @@ class MotorcycleManagementTest extends TestCase
     {
         parent::setUp();
         Filament::setCurrentPanel('admin');
+        Storage::fake('public');
     }
 
     private function makeUser(UserRole $role, bool $active = true): User
@@ -55,6 +59,12 @@ class MotorcycleManagementTest extends TestCase
 
     private function formData(Brand $brand, string $slug = 'new-bike'): array
     {
+        // A valid persisted public-disk image satisfies the required gallery.
+        // Create an independent file for each form submission.
+        $imagePath = UploadedFile::fake()
+            ->image('motorcycle.jpg')
+            ->store('motorcycles/images', 'public');
+
         return [
             'brand_id' => $brand->id,
             'name' => 'New Bike',
@@ -67,6 +77,12 @@ class MotorcycleManagementTest extends TestCase
             'is_featured' => false,
             'is_published' => false,
             'sort_order' => 0,
+            'images' => [[
+            'path' => [(string) Str::uuid() => $imagePath],
+                'alt_text' => 'Test motorcycle',
+                'sort_order' => 0,
+                'is_primary' => true,
+            ]],
         ];
     }
 
@@ -160,7 +176,7 @@ class MotorcycleManagementTest extends TestCase
         Livewire::test(CreateMotorcycle::class)
             ->fillForm($this->formData($unassigned))
             ->call('create')
-            ->assertForbidden();
+            ->assertHasFormErrors(['brand_id']);
 
         $this->assertDatabaseMissing('motorcycles', [
             'brand_id' => $unassigned->id,
@@ -177,10 +193,10 @@ class MotorcycleManagementTest extends TestCase
         $bike = $this->makeMotorcycle($assigned);
         $this->actingAs($dataEntry);
 
-        Livewire::test(EditMotorcycle::class, ['record' => $bike->id])
+        Livewire::test(EditMotorcycle::class, ['record' => $bike->uuid])
             ->fillForm(['brand_id' => $unassigned->id])
             ->call('save')
-            ->assertForbidden();
+            ->assertHasFormErrors(['brand_id']);
 
         $this->assertSame($assigned->id, $bike->fresh()->brand_id);
     }

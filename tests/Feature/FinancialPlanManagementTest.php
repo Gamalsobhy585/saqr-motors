@@ -36,7 +36,7 @@ class FinancialPlanManagementTest extends TestCase
         $this->plan();
         $this->plan(['name_en' => 'Hidden Plan', 'name_ar' => 'خطة مخفية', 'is_active' => false]);
 
-        $this->get('/financial-plans')
+        $this->get(route('home'))
             ->assertOk()
             ->assertSee('Starter Plan')
             ->assertDontSee('Hidden Plan');

@@ -38,6 +38,7 @@ class SaqrPublicWebsiteTest extends TestCase
             'currency_code' => 'EGP',
             'availability_status' => MotorcycleAvailability::Available,
             'is_published' => true,
+            'is_featured' => true,
         ]);
     }
 
@@ -72,8 +73,11 @@ class SaqrPublicWebsiteTest extends TestCase
         $route = route('motorcycles.book', ['motorcycle' => $motorcycle->uuid]);
 
         $this->post($route, $data)->assertRedirect();
-        $this->post($route, $data)->assertSessionHasErrors('ride_time');
         $this->assertDatabaseCount('test_ride_bookings', 1);
+
+        // PostgreSQL rejects a duplicate key within the outer RefreshDatabase
+        // transaction. The application must handle it without a follow-up query.
+        $this->post($route, $data)->assertSessionHasErrors('ride_time');
     }
 
     public function test_contact_creates_a_new_enquiry(): void
