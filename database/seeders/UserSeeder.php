@@ -6,53 +6,57 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use RuntimeException;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment(['local', 'testing'])) {
+        $allowed = app()->environment(['local', 'testing'])
+            || config('saqr_public.allow_demo_seeding') === true;
+
+        if (! $allowed) {
             throw new RuntimeException(
-                'Demo user seeding is restricted to local/testing.'
+                'Demo user seeding is disabled in this environment.'
             );
         }
 
         $users = [
             [
                 'name' => 'SAQR Admin',
-                'email' => env('SAQR_ADMIN_EMAIL'),
-                'password' => env('SAQR_ADMIN_PASSWORD'),
+                'email' => config('saqr_public.admin_email'),
+                'password' => config('saqr_public.admin_password'),
                 'role' => UserRole::Admin,
             ],
             [
                 'name' => 'SAQR Data Entry',
-                'email' => env('SAQR_DATA_ENTRY_EMAIL'),
-                'password' => env('SAQR_DATA_ENTRY_PASSWORD'),
+                'email' => config('saqr_public.data_entry_email'),
+                'password' => config('saqr_public.data_entry_password'),
                 'role' => UserRole::DataEntry,
             ],
         ];
 
         foreach ($users as $data) {
             Validator::make($data, [
-                'email' => ['required', 'email'],
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'email', 'max:255'],
                 'password' => [
                     'required',
-                    Password::min(12)
+                    Password::min(8)
                         ->letters()
                         ->numbers()
                         ->symbols(),
                 ],
             ])->validate();
 
-            $user = User::firstOrNew([
+            $user = User::query()->firstOrNew([
                 'email' => $data['email'],
             ]);
 
             if ($user->exists) {
-                // Preserve existing passwords, roles and status.
+                // Never overwrite existing passwords, roles or status.
                 continue;
             }
 
@@ -60,6 +64,7 @@ class UserSeeder extends Seeder
             $user->password = Hash::make($data['password']);
             $user->role = $data['role'];
             $user->is_active = true;
+
             $user->save();
         }
     }
