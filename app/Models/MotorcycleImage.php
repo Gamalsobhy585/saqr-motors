@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicImageUrls;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -22,5 +23,10 @@ class MotorcycleImage extends Model
     public function motorcycle(): BelongsTo
     {
         return $this->belongsTo(Motorcycle::class);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return PublicImageUrls::resolve($this->path, 'images/motorcycles');
     }
 }

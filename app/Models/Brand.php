@@ -3,16 +3,15 @@
 namespace App\Models;
 
 use App\Models\Concerns\TracksEditors;
+use App\Support\PublicImageUrls;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
-use App\Support\DatabaseImages;
+
 class Brand extends Model
 {
-    use HasFactory,TracksEditors;
-
+    use HasFactory, TracksEditors;
 
     protected $fillable = [
         'name', 'slug', 'tagline', 'description', 'logo_path',
@@ -41,36 +40,19 @@ class Brand extends Model
     {
         return $this->hasMany(Enquiry::class);
     }
+
     public function getLogoUrlAttribute(): ?string
     {
-        $path = $this->logo_path;
-
-        if (blank($path)) {
-            return null;
-        }
-        if (str_starts_with($path, 'db-media/')) {
-            return DatabaseImages::url($path);
-        }
-
-        if (filter_var($path, FILTER_VALIDATE_URL)) {
-            return $path;
-        }
-
-        if (str_starts_with($path, 'images/')) {
-            return is_file(public_path($path))
-                ? asset($path)
-                : null;
-        }
-
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->url($path);
-        }
-
-        return null;
+        return PublicImageUrls::resolve($this->logo_path, 'images/brands');
     }
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        return PublicImageUrls::resolve($this->cover_path, 'images/brands');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';
     }
-
 }

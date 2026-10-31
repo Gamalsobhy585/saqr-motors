@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Motorcycles\Schemas;
 
 use App\Enums\MotorcycleAvailability;
 use App\Enums\MotorcycleCategory;
+use App\Models\Motorcycle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\KeyValueEntry;
@@ -16,8 +17,6 @@ class MotorcycleInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-
-            // Motorcycle Details
             Section::make(__('saqr.motorcycles.details'))
                 ->schema([
                     TextEntry::make('brand.name')
@@ -75,7 +74,6 @@ class MotorcycleInfolist
                 ])
                 ->columns(2),
 
-            // Publishing
             Section::make(__('saqr.motorcycles.publishing'))
                 ->schema([
                     IconEntry::make('is_published')
@@ -96,7 +94,6 @@ class MotorcycleInfolist
                 ])
                 ->columns(4),
 
-            // Technical Specifications
             Section::make(__('saqr.motorcycles.specifications'))
                 ->schema([
                     TextEntry::make('specification.engine_cc')
@@ -146,12 +143,15 @@ class MotorcycleInfolist
                 ->columns(4)
                 ->collapsible(),
 
-            // Image Gallery
             Section::make(__('saqr.motorcycles.gallery'))
                 ->schema([
                     ImageEntry::make('images.path')
                         ->label(__('saqr.motorcycles.images'))
-                        ->disk('public')
+                        ->getStateUsing(fn (Motorcycle $record): array => $record->images
+                            ->map(fn ($image): ?string => $image->image_url)
+                            ->filter()
+                            ->values()
+                            ->all())
                         ->imageHeight(140)
                         ->columnSpanFull(),
                 ])

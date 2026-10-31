@@ -3,28 +3,19 @@
 namespace App\Models;
 
 use App\Models\Concerns\TracksEditors;
+use App\Support\PublicImageUrls;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Promotion extends Model
 {
     use TracksEditors;
 
     protected $fillable = [
-        'brand_id',
-        'motorcycle_id',
-        'title_en',
-        'title_ar',
-        'description_en',
-        'description_ar',
-        'discount_percent',
-        'starts_at',
-        'ends_at',
-        'image_path',
-        'is_active',
-        'sort_order',
+        'brand_id', 'motorcycle_id', 'title_en', 'title_ar',
+        'description_en', 'description_ar', 'discount_percent',
+        'starts_at', 'ends_at', 'image_path', 'is_active', 'sort_order',
     ];
 
     protected function casts(): array
@@ -58,7 +49,6 @@ class Promotion extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    // Use when building the public promotional cards. Not used for admin listing.
     public function scopeCurrent(Builder $query): Builder
     {
         $today = now()->toDateString();
@@ -84,28 +74,7 @@ class Promotion extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        $path = $this->image_path;
-
-        if (blank($path)) {
-            return null;
-        }
-
-        if (filter_var($path, FILTER_VALIDATE_URL)) {
-            return $path;
-        }
-
-        $disk = Storage::disk('public');
-
-        if ($disk->exists($path)) {
-            return $disk->url($path);
-        }
-
-        $staticPath = str_starts_with($path, 'images/')
-            ? $path
-            : 'images/services/' . basename($path);
-
-        return is_file(public_path($staticPath))
-            ? asset($staticPath)
-            : null;
+        // Preserve the existing static services fallback for seeded images.
+        return PublicImageUrls::resolve($this->image_path, 'images/services');
     }
 }

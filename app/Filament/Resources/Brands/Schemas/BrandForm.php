@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Brands\Schemas;
 
+use App\Support\DatabaseImages;
+use App\Support\ResolvesPublicImages;
 use Closure;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
@@ -10,12 +12,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use RuntimeException;
-use App\Support\DatabaseImages;
-
 
 class BrandForm
 {
@@ -42,11 +40,7 @@ class BrandForm
                         ->required()
                         ->maxLength(255)
                         ->alphaDash()
-                        ->unique(
-                            table: 'brands',
-                            column: 'slug',
-                            ignoreRecord: true
-                        ),
+                        ->unique(table: 'brands', column: 'slug', ignoreRecord: true),
 
                     TextInput::make('tagline')
                         ->label(__('saqr.brands.tagline'))
@@ -74,8 +68,8 @@ class BrandForm
 
             Section::make(__('saqr.brands.media'))
                 ->schema([
-                    self::imageUpload('logo_path', 'saqr.brands.logo', 'brands/logos', 2048),
-                    self::imageUpload('cover_path', 'saqr.brands.cover', 'brands/covers', 5120),
+                    self::imageUpload('logo_path', 'saqr.brands.logo', 2048),
+                    self::imageUpload('cover_path', 'saqr.brands.cover', 5120),
                 ])
                 ->columns(2),
 
@@ -96,16 +90,7 @@ class BrandForm
         ]);
     }
 
-    /**
-     * Strict website URL validation:
-     *  1. http/https only, no embedded credentials
-     *  2. host is a well-formed domain with a real TLD (no localhost / bare IPs)
-     *  3. host resolves in DNS
-     *  4. host does not resolve to a private/reserved IP (SSRF protection)
-     *
-     * Returns the actual validation closure (Filament's ->rule() expects to
-     * receive it from a factory closure, see configure()).
-     */
+    /** Preserve the existing strict website validation logic. */
     protected static function validateWebsiteUrl(): Closure
     {
         return function (string $attribute, mixed $value, Closure $fail): void {
@@ -114,10 +99,8 @@ class BrandForm
             }
 
             $invalid = fn () => $fail(__('saqr.brands.website_invalid'));
-
             $parts = parse_url(trim((string) $value));
 
-            // 1. Scheme + structure
             if (
                 $parts === false
                 || ! in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)
@@ -130,7 +113,6 @@ class BrandForm
                 return;
             }
 
-            // Support IDN (Arabic / non-ASCII) domains
             $host = strtolower($parts['host']);
 
             if (function_exists('idn_to_ascii')) {
@@ -141,14 +123,12 @@ class BrandForm
                 }
             }
 
-            // 2. Well-formed domain with a real TLD
             if (! preg_match('/^(?!-)([a-z0-9-]{1,63}(?<!-)\.)+[a-z]{2,63}$/', $host)) {
                 $invalid();
 
                 return;
             }
 
-            // 3. DNS must resolve (trailing dot avoids local search-domain suffixes)
             $fqdn = $host . '.';
 
             if (
@@ -161,7 +141,6 @@ class BrandForm
                 return;
             }
 
-            // 4. Block private / loopback / reserved IPs
             foreach (gethostbynamel($host) ?: [] as $ip) {
                 if (! filter_var(
                     $ip,
@@ -169,98 +148,29 @@ class BrandForm
                     FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
                 )) {
                     $invalid();
-
                     return;
                 }
             }
         };
     }
 
-
-    protected static function imageUpload(
-        string $name,
-        string $labelKey,
-        string $directory,
-        int $maxSize
-    ): FileUpload {
+    protected static function imageUpload(string $name, string $labelKey, int $maxSize): FileUpload
+    {
         return FileUpload::make($name)
             ->label(__($labelKey))
             ->image()
-            ->acceptedFileTypes([
-                'image/jpeg',
-                'image/png',
-                'image/webp',
-            ])
+            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+            // Livewire's initial temporary upload still uses the configured temp disk.
+            // Permanent storage is moved to PostgreSQL on form save.
             ->disk('public')
-            ->directory($directory)
             ->visibility('public')
             ->imagePreviewHeight('90')
             ->panelLayout('compact')
             ->maxSize($maxSize)
-            ->saveUploadedFileUsing(
-                fn (TemporaryUploadedFile $file): string =>
-                    DatabaseImages::store($file)
-            )
             ->fetchFileInformation(false)
-            ->getUploadedFileUsing(self::resolveStoredFile())
+            ->getUploadedFileUsing(ResolvesPublicImages::forDirectory('images/brands'))
             ->saveUploadedFileUsing(
-                function (TemporaryUploadedFile $file) use ($directory): string {
-                    $path = $file->storePublicly($directory, 'public');
-
-                    if (
-                        ! is_string($path) ||
-                        ! Storage::disk('public')->exists($path)
-                    ) {
-                        throw new RuntimeException(
-                            "Failed to save image in {$directory}"
-                        );
-                    }
-
-                    return $path;
-                }
+                fn (TemporaryUploadedFile $file): string => DatabaseImages::store($file)
             );
-    }
-
-
-    /**
-     * Resolves both seeded static images (public/images/brands/*)
-     * and files uploaded through Filament (public disk).
-     */
-    protected static function resolveStoredFile(): Closure
-    {
-        return function (string $file): ?array {
-            // Seeded images living in public/images/brands
-            if (str_starts_with($file, 'db-media/')) {
-                return DatabaseImages::fileInfo($file);
-            }
-            if (str_starts_with($file, 'images/brands/')) {
-                $path = public_path($file);
-
-                if (! is_file($path)) {
-                    return null;
-                }
-
-                return [
-                    'name' => basename($file),
-                    'size' => filesize($path),
-                    'type' => mime_content_type($path),
-                    'url'  => asset($file),
-                ];
-            }
-
-            // Images uploaded through Filament
-            $disk = Storage::disk('public');
-
-            if (! $disk->exists($file)) {
-                return null;
-            }
-
-            return [
-                'name' => basename($file),
-                'size' => $disk->size($file),
-                'type' => $disk->mimeType($file),
-                'url'  => $disk->url($file),
-            ];
-        };
     }
 }

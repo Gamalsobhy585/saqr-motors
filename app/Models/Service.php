@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Support\PublicImageUrls;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Service extends Model
 {
@@ -21,6 +21,7 @@ class Service extends Model
             'sort_order' => 'integer',
         ];
     }
+
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -68,36 +69,6 @@ class Service extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        $path = $this->image_path;
-
-        if (blank($path)) {
-            return null;
-        }
-
-        if (filter_var($path, FILTER_VALIDATE_URL)) {
-            return $path;
-        }
-
-        if (str_starts_with($path, 'images/')) {
-            return is_file(public_path($path))
-                ? asset($path)
-                : null;
-        }
-
-        // Actual Filament uploads take priority.
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->url($path);
-        }
-
-        // Fallback for static assessment images.
-        if (str_starts_with($path, 'services/images/')) {
-            $staticPath = 'images/services/' . basename($path);
-
-            return is_file(public_path($staticPath))
-                ? asset($staticPath)
-                : null;
-        }
-
-        return null;
+        return PublicImageUrls::resolve($this->image_path, 'images/services');
     }
 }

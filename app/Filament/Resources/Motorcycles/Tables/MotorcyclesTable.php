@@ -4,19 +4,19 @@ namespace App\Filament\Resources\Motorcycles\Tables;
 
 use App\Enums\MotorcycleAvailability;
 use App\Enums\MotorcycleCategory;
+use App\Models\Motorcycle;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
-
 
 class MotorcyclesTable
 {
@@ -27,7 +27,7 @@ class MotorcyclesTable
             ->columns([
                 ImageColumn::make('primaryImage.path')
                     ->label(__('saqr.motorcycles.photo'))
-                    ->disk('public')
+                    ->getStateUsing(fn (Motorcycle $record): ?string => $record->primary_image_url)
                     ->imageSize(56),
 
                 TextColumn::make('name')
@@ -93,7 +93,6 @@ class MotorcyclesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Brand
                 SelectFilter::make('brand_id')
                     ->label(__('saqr.motorcycles.brand'))
                     ->relationship(
@@ -105,8 +104,7 @@ class MotorcyclesTable
                             if (! $user?->isAdmin()) {
                                 $query->whereHas(
                                     'users',
-                                    fn (Builder $q) =>
-                                        $q->whereKey($user?->id ?? 0)
+                                    fn (Builder $q) => $q->whereKey($user?->id ?? 0)
                                 );
                             }
 
@@ -116,7 +114,6 @@ class MotorcyclesTable
                     ->searchable()
                     ->preload(),
 
-                // Price range
                 Filter::make('price_range')
                     ->label(__('saqr.motorcycles.price'))
                     ->schema([
@@ -137,53 +134,34 @@ class MotorcyclesTable
                                 ->when(
                                     filled($data['min_price'] ?? null),
                                     fn (Builder $q) => $q->where(
-                                        'starting_price',
-                                        '>=',
-                                        $data['min_price']
+                                        'starting_price', '>=', $data['min_price']
                                     )
                                 )
                                 ->when(
                                     filled($data['max_price'] ?? null),
                                     fn (Builder $q) => $q->where(
-                                        'starting_price',
-                                        '<=',
-                                        $data['max_price']
+                                        'starting_price', '<=', $data['max_price']
                                     )
                                 )
                     ),
 
-                // Availability status
                 SelectFilter::make('availability_status')
                     ->label(__('saqr.motorcycles.availability'))
                     ->options([
-                        MotorcycleAvailability::Available->value =>
-                            __('saqr.availability.available'),
-
-                        MotorcycleAvailability::ComingSoon->value =>
-                            __('saqr.availability.coming_soon'),
-
-                        MotorcycleAvailability::OutOfStock->value =>
-                            __('saqr.availability.out_of_stock'),
+                        MotorcycleAvailability::Available->value => __('saqr.availability.available'),
+                        MotorcycleAvailability::ComingSoon->value => __('saqr.availability.coming_soon'),
+                        MotorcycleAvailability::OutOfStock->value => __('saqr.availability.out_of_stock'),
                     ]),
 
-                // Motorcycle category / type
                 SelectFilter::make('category')
                     ->label(__('saqr.motorcycles.category'))
                     ->options([
-                        MotorcycleCategory::Urban->value =>
-                            __('saqr.categories.urban'),
-
-                        MotorcycleCategory::Adventure->value =>
-                            __('saqr.categories.adventure'),
-
-                        MotorcycleCategory::Performance->value =>
-                            __('saqr.categories.performance'),
-
-                        MotorcycleCategory::Premium->value =>
-                            __('saqr.categories.premium'),
+                        MotorcycleCategory::Urban->value => __('saqr.categories.urban'),
+                        MotorcycleCategory::Adventure->value => __('saqr.categories.adventure'),
+                        MotorcycleCategory::Performance->value => __('saqr.categories.performance'),
+                        MotorcycleCategory::Premium->value => __('saqr.categories.premium'),
                     ]),
 
-                // Published status
                 TernaryFilter::make('is_published')
                     ->label(__('saqr.motorcycles.published')),
             ])

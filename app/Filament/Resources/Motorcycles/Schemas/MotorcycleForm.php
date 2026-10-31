@@ -18,8 +18,9 @@ use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
-use Illuminate\Support\Facades\Storage;
 use App\Support\ResolvesPublicImages;
+use App\Support\DatabaseImages;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class MotorcycleForm
 {
     public static function configure(Schema $schema): Schema
@@ -264,6 +265,9 @@ Section::make(__('saqr.motorcycles.gallery'))
         ->fetchFileInformation(false)
         ->getUploadedFileUsing(
             ResolvesPublicImages::forDirectory('images/motorcycles')
+        )
+        ->saveUploadedFileUsing(
+            fn (TemporaryUploadedFile $file): string => DatabaseImages::store($file)
         ),
 
                         TextInput::make('alt_text')

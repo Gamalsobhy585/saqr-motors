@@ -40,25 +40,20 @@ class BrandInfolist
                 ])
                 ->columns(2),
 
-                Section::make(__('saqr.brands.media'))
-                    ->schema([
+            Section::make(__('saqr.brands.media'))
+                ->schema([
                     ImageEntry::make('logo_path')
                         ->label(__('saqr.brands.logo'))
-                        ->getStateUsing(
-                            fn (Brand $record): ?string => $record->logo_url
-                        )
-                        ->defaultImageUrl(
-                            asset('images/brands/default.png')
-                        )
+                        ->getStateUsing(fn (Brand $record): ?string => $record->logo_url)
+                        ->defaultImageUrl(asset('images/brands/default.png'))
                         ->imageSize(120),
 
                     ImageEntry::make('cover_path')
                         ->label(__('saqr.brands.cover'))
-                        ->disk('public')
-                        ->visibility('public')
+                        ->getStateUsing(fn (Brand $record): ?string => $record->cover_url)
                         ->imageHeight(150),
-                    ])
-                    ->columns(2),
+                ])
+                ->columns(2),
 
             Section::make(__('saqr.brands.visibility'))
                 ->schema([

@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Support;
@@ -11,9 +10,12 @@ final class ResolvesPublicImages
     public static function forDirectory(string $staticDirectory): Closure
     {
         return static function (string $file) use ($staticDirectory): ?array {
+            if (DatabaseImages::isStoredPath($file)) {
+                return DatabaseImages::fileInfo($file);
+            }
+
             $disk = Storage::disk('public');
 
-            // Existing uploaded file takes priority.
             if ($disk->exists($file)) {
                 return [
                     'name' => basename($file),
@@ -23,13 +25,9 @@ final class ResolvesPublicImages
                 ];
             }
 
-            // Direct static path, for example images/services/oil.jpg.
-            if (str_starts_with($file, 'images/')) {
-                $staticPath = $file;
-            } else {
-                // Seeders store paths like motorcycles/images/cb650r.jpg.
-                $staticPath = trim($staticDirectory, '/') . '/' . basename($file);
-            }
+            $staticPath = str_starts_with($file, 'images/')
+                ? $file
+                : trim($staticDirectory, '/') . '/' . basename($file);
 
             if (! is_file(public_path($staticPath))) {
                 return null;

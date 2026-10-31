@@ -2,19 +2,23 @@
 
 namespace App\Filament\Resources\Promotions\Schemas;
 
+use App\Models\Promotion;
+use App\Support\DatabaseImages;
+use App\Support\ResolvesPublicImages;
+use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Promotion;
-use Closure;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+
 class PromotionForm
 {
     public static function configure(Schema $schema): Schema
@@ -62,13 +66,11 @@ class PromotionForm
 
                     TextInput::make('title_en')
                         ->label(__('promotions.title_en'))
-                        ->required()
-                        ->maxLength(255),
+                        ->required(),
 
                     TextInput::make('title_ar')
                         ->label(__('promotions.title_ar'))
-                        ->required()
-                        ->maxLength(255),
+                        ->required(),
 
                     Textarea::make('description_en')
                         ->label(__('promotions.description_en'))
@@ -107,8 +109,6 @@ class PromotionForm
                                     mixed $value,
                                     Closure $fail
                                 ) use ($get, $record): void {
-
-                                    // Inactive promotions do not cause conflicts.
                                     if (! (bool) $get('is_active')) {
                                         return;
                                     }
@@ -118,16 +118,15 @@ class PromotionForm
                                     $startsAt = $get('starts_at');
                                     $endsAt = $value;
 
-                                    // Brand-wide promotions may overlap freely.
                                     if (blank($motorcycleId)) {
                                         return;
                                     }
 
                                     if (
-                                        blank($brandId) ||
-                                        blank($startsAt) ||
-                                        blank($endsAt) ||
-                                        $endsAt < $startsAt
+                                        blank($brandId)
+                                        || blank($startsAt)
+                                        || blank($endsAt)
+                                        || $endsAt < $startsAt
                                     ) {
                                         return;
                                     }
@@ -136,26 +135,16 @@ class PromotionForm
                                         ->where('brand_id', $brandId)
                                         ->where('motorcycle_id', $motorcycleId)
                                         ->where('is_active', true)
-
-                                        // Existing promotion begins before new one ends.
                                         ->whereDate('starts_at', '<=', $endsAt)
-
-                                        // Existing promotion ends after new one starts.
                                         ->whereDate('ends_at', '>=', $startsAt)
-
-                                        // Exclude current promotion when editing.
                                         ->when(
                                             $record,
-                                            fn ($query) => $query->whereKeyNot(
-                                                $record->getKey()
-                                            )
+                                            fn ($query) => $query->whereKeyNot($record->getKey())
                                         )
                                         ->exists();
 
                                     if ($overlapExists) {
-                                        $fail(
-                                            __('promotions.validation.overlapping_period')
-                                        );
+                                        $fail(__('promotions.validation.overlapping_period'));
                                     }
                                 },
                         ]),
@@ -179,11 +168,15 @@ class PromotionForm
                         ->image()
                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                         ->disk('public')
-                        ->directory('promotions')
                         ->visibility('public')
                         ->imagePreviewHeight('90')
                         ->panelLayout('compact')
-                        ->maxSize(5120),
+                        ->maxSize(5120)
+                        ->fetchFileInformation(false)
+                        ->getUploadedFileUsing(ResolvesPublicImages::forDirectory('images/services'))
+                        ->saveUploadedFileUsing(
+                            fn (TemporaryUploadedFile $file): string => DatabaseImages::store($file)
+                        ),
                 ]),
         ]);
     }

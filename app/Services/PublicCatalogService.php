@@ -8,23 +8,20 @@ use App\Models\Location;
 use App\Models\Motorcycle;
 use App\Models\Promotion;
 use App\Models\Service;
+use App\Support\PublicImageUrls;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
 class PublicCatalogService
 {
-private function publishedMotorcycles(): Builder
-{
-    return Motorcycle::query()
-        ->where('is_published', true)
-        ->whereHas(
-            'brand',
-            fn (Builder $query) => $query->where('is_active', true)
-        )
-        ->with(['brand', 'primaryImage']);
-}
+    private function publishedMotorcycles(): Builder
+    {
+        return Motorcycle::query()
+            ->where('is_published', true)
+            ->whereHas('brand', fn (Builder $query) => $query->where('is_active', true))
+            ->with(['brand', 'primaryImage']);
+    }
 
     /** @return array<string, mixed> */
     public function home(): array
@@ -35,11 +32,11 @@ private function publishedMotorcycles(): Builder
                 $query->where('is_published', true)])
             ->orderBy('sort_order')->orderBy('id')->get();
 
-$latest = $this->publishedMotorcycles()
-    ->where('is_featured', true)
-    ->latest('created_at')
-    ->limit(9)
-    ->get();
+        $latest = $this->publishedMotorcycles()
+            ->where('is_featured', true)
+            ->latest('created_at')
+            ->limit(9)
+            ->get();
         $this->attachPromotions($latest);
 
         return [
@@ -67,7 +64,6 @@ $latest = $this->publishedMotorcycles()
         if (filled($filters['max_price'] ?? null)) {
             $query->where('starting_price', '<=', $filters['max_price']);
         }
-        // Exact 'under' preset: strictly less than the selected threshold.
         if (filled($filters['price_under'] ?? null)) {
             $query->where('starting_price', '<', $filters['price_under']);
         }
@@ -134,7 +130,6 @@ $latest = $this->publishedMotorcycles()
             ->get();
 
         foreach ($motorcycles as $motorcycle) {
-            // Specific offer always wins; otherwise highest brand-wide offer.
             $specific = $promotions->first(fn (Promotion $p) =>
                 (int) $p->brand_id === (int) $motorcycle->brand_id && (int) $p->motorcycle_id === (int) $motorcycle->id);
             $general = $promotions->first(fn (Promotion $p) =>
@@ -151,57 +146,11 @@ $latest = $this->publishedMotorcycles()
             return null;
         }
 
-        if (filter_var($path, FILTER_VALIDATE_URL)) {
-            return $path;
-        }
-
-        if (str_starts_with($path, 'images/')) {
-            return is_file(public_path($path))
-                ? asset($path)
-                : null;
-        }
-
-        $disk = Storage::disk('public');
-
-        // Prioritize the actual uploaded image.
-        if ($disk->exists($path)) {
-            return $disk->url($path);
-        }
-
-        // Fallback to static assessment images.
-        $filename = basename($path);
-
-        if (in_array(
-            $filename,
-            [
-                'cb650r.jpg',
-                'cb650r-side.jpg',
-                'mt-07.jpg',
-                'mt-07-side.jpg',
-                'ninja-650.jpg',
-                'ninja-650-side.jpg',
-                'v-strom-650.jpg',
-                'v-strom-650-side.jpg',
-                'r-1300-gs.jpg',
-                'r-1300-gs-side.jpg',
-                'monster.jpg',
-                'monster-side.jpg',
-                '390-adventure.webp',
-                '390-adventure-side.webp',
-                'tiger-900.jpg',
-                'tiger-900-side.jpg',
-            ],
-            true
-        )) {
-            $staticPath = "images/motorcycles/{$filename}";
-
-            if (is_file(public_path($staticPath))) {
-                return asset($staticPath);
-            }
-        }
-
-        return null;
+        // Files committed under public/images remain supported, and new
+        // PostgreSQL-backed images use the /media/{uuid} route.
+        return PublicImageUrls::resolve($path, 'images/motorcycles');
     }
+
     public static function discountedPrice(Motorcycle $motorcycle): ?float
     {
         if ($motorcycle->starting_price === null) {

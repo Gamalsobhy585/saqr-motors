@@ -5,19 +5,17 @@ namespace App\Models;
 use App\Enums\MotorcycleAvailability;
 use App\Enums\MotorcycleCategory;
 use App\Models\Concerns\TracksEditors;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-
 
 class Motorcycle extends Model
 {
-    use HasFactory, SoftDeletes, TracksEditors,HasUuids;
+    use HasUuids, SoftDeletes, TracksEditors;
 
     protected $fillable = [
         'brand_id', 'name', 'slug', 'category', 'description',
@@ -68,6 +66,11 @@ class Motorcycle extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function getPrimaryImageUrlAttribute(): ?string
+    {
+        return $this->primaryImage?->image_url;
+    }
+
     /** After Filament has saved related images, make the first image primary. */
     public function syncPrimaryImage(): void
     {
@@ -82,13 +85,14 @@ class Motorcycle extends Model
             }
         });
     }
+
     public function uniqueIds(): array
     {
         return ['uuid'];
     }
+
     public function getRouteKeyName(): string
     {
         return 'uuid';
     }
-
 }
