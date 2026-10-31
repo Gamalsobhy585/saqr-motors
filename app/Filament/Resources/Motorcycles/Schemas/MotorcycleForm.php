@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Illuminate\Support\Facades\Storage;
+use App\Support\ResolvesPublicImages;
 class MotorcycleForm
 {
     public static function configure(Schema $schema): Schema
@@ -245,56 +246,25 @@ Section::make(__('saqr.motorcycles.gallery'))
             ->maxItems(3)
             ->schema([
                 
-        FileUpload::make('path')
-            ->label(__('saqr.motorcycles.image'))
-            ->image()
-            ->acceptedFileTypes([
-                'image/jpeg',
-                'image/jpg',
-                'image/png',
-                'image/webp',
-            ])
-            ->disk('public')
-            ->directory('motorcycles/images')
-            ->visibility('public')
-            ->imagePreviewHeight('90')
-            ->panelLayout('compact')
-            ->maxSize(5120)
-            ->required()
-            ->fetchFileInformation(false)
-            
-            ->getUploadedFileUsing(function (string $file): ?array {
-
-                // Existing static motorcycle images
-                if (str_starts_with($file, 'images/motorcycles/')) {
-                    $path = public_path($file);
-
-                    if (! is_file($path)) {
-                        return null;
-                    }
-
-                    return [
-                        'name' => basename($file),
-                        'size' => filesize($path),
-                        'type' => mime_content_type($path),
-                        'url'  => asset($file),
-                    ];
-                }
-
-                // Images uploaded through Filament
-                $disk = Storage::disk('public');
-
-                if (! $disk->exists($file)) {
-                    return null;
-                }
-
-                return [
-                    'name' => basename($file),
-                    'size' => $disk->size($file),
-                    'type' => $disk->mimeType($file),
-                    'url'  => $disk->url($file),
-                ];
-            }),
+      FileUpload::make('path')
+        ->label(__('saqr.motorcycles.image'))
+        ->image()
+        ->acceptedFileTypes([
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+        ])
+        ->disk('public')
+        ->directory('motorcycles/images')
+        ->visibility('public')
+        ->imagePreviewHeight('90')
+        ->panelLayout('compact')
+        ->maxSize(5120)
+        ->required()
+        ->fetchFileInformation(false)
+        ->getUploadedFileUsing(
+            ResolvesPublicImages::forDirectory('images/motorcycles')
+        ),
 
                         TextInput::make('alt_text')
                             ->label(__('saqr.motorcycles.alt_text'))

@@ -146,17 +146,62 @@ $latest = $this->publishedMotorcycles()
     public static function imageUrl(Motorcycle $motorcycle): ?string
     {
         $path = $motorcycle->primaryImage?->path;
+
         if (blank($path)) {
             return null;
         }
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
         }
-        return str_starts_with($path, 'images/')
-            ? asset($path)
-            : Storage::disk('public')->url($path);
-    }
 
+        if (str_starts_with($path, 'images/')) {
+            return is_file(public_path($path))
+                ? asset($path)
+                : null;
+        }
+
+        $disk = Storage::disk('public');
+
+        // Prioritize the actual uploaded image.
+        if ($disk->exists($path)) {
+            return $disk->url($path);
+        }
+
+        // Fallback to static assessment images.
+        $filename = basename($path);
+
+        if (in_array(
+            $filename,
+            [
+                'cb650r.jpg',
+                'cb650r-side.jpg',
+                'mt-07.jpg',
+                'mt-07-side.jpg',
+                'ninja-650.jpg',
+                'ninja-650-side.jpg',
+                'v-strom-650.jpg',
+                'v-strom-650-side.jpg',
+                'r-1300-gs.jpg',
+                'r-1300-gs-side.jpg',
+                'monster.jpg',
+                'monster-side.jpg',
+                '390-adventure.webp',
+                '390-adventure-side.webp',
+                'tiger-900.jpg',
+                'tiger-900-side.jpg',
+            ],
+            true
+        )) {
+            $staticPath = "images/motorcycles/{$filename}";
+
+            if (is_file(public_path($staticPath))) {
+                return asset($staticPath);
+            }
+        }
+
+        return null;
+    }
     public static function discountedPrice(Motorcycle $motorcycle): ?float
     {
         if ($motorcycle->starting_price === null) {

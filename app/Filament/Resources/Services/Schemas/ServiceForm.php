@@ -10,7 +10,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
-
+use App\Support\ResolvesPublicImages;
 class ServiceForm
 {
     public static function configure(Schema $schema): Schema
@@ -65,13 +65,21 @@ class ServiceForm
                     FileUpload::make('image_path')
                         ->label(__('services.fields.image'))
                         ->image()
-                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                        ->acceptedFileTypes([
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ])
                         ->disk('public')
                         ->directory('services/images')
                         ->visibility('public')
                         ->imagePreviewHeight('90')
                         ->panelLayout('compact')
-                        ->maxSize(5120),
+                        ->maxSize(5120)
+                        ->fetchFileInformation(false)
+                        ->getUploadedFileUsing(
+                            ResolvesPublicImages::forDirectory('images/services')
+                        ),
                 ]),
 
             Section::make(__('services.sections.visibility'))

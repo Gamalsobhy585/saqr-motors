@@ -41,17 +41,29 @@ class Brand extends Model
     {
         return $this->hasMany(Enquiry::class);
     }
-   public function getLogoUrlAttribute(): ?string
+    public function getLogoUrlAttribute(): ?string
     {
-        if (! $this->logo_path) {
+        $path = $this->logo_path;
+
+        if (blank($path)) {
             return null;
         }
 
-        if (str_starts_with($this->logo_path, 'images/brands/')) {
-            return asset($this->logo_path);
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
         }
 
-        return Storage::disk('public')->url($this->logo_path);
+        if (str_starts_with($path, 'images/')) {
+            return is_file(public_path($path))
+                ? asset($path)
+                : null;
+        }
+
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->url($path);
+        }
+
+        return null;
     }
     public function getRouteKeyName(): string
     {

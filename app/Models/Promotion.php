@@ -84,15 +84,28 @@ class Promotion extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        if (blank($this->image_path)) {
+        $path = $this->image_path;
+
+        if (blank($path)) {
             return null;
         }
 
-        // Supports static demo images, like the existing Brand logo accessor.
-        if (str_starts_with($this->image_path, 'images/')) {
-            return asset($this->image_path);
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
         }
 
-        return Storage::disk('public')->url($this->image_path);
+        $disk = Storage::disk('public');
+
+        if ($disk->exists($path)) {
+            return $disk->url($path);
+        }
+
+        $staticPath = str_starts_with($path, 'images/')
+            ? $path
+            : 'images/services/' . basename($path);
+
+        return is_file(public_path($staticPath))
+            ? asset($staticPath)
+            : null;
     }
 }
