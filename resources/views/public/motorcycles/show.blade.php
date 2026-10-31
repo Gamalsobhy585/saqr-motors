@@ -4,11 +4,9 @@
 @section('content')
 @php
     $gallery = $motorcycle->images->map(fn ($image) => [
-        'url' => str_starts_with($image->path, 'images/')
-            ? asset($image->path)
-            : \Illuminate\Support\Facades\Storage::disk('public')->url($image->path),
+        'url' => $image->image_url,
         'alt' => $image->alt_text ?: $motorcycle->name,
-    ])->values();
+    ])->filter(fn ($image) => filled($image['url']))->values();
     $firstImage = $gallery->first()['url'] ?? \App\Services\PublicCatalogService::imageUrl($motorcycle);
     $promotion = $motorcycle->activePromotion;
     $newPrice = \App\Services\PublicCatalogService::discountedPrice($motorcycle);
