@@ -17,7 +17,7 @@
 <header x-data="{ menuOpen: false, open: null }" class="sticky top-0 z-50 border-b border-white/10 bg-[#0c0d11]/95 shadow-lg shadow-black/10 backdrop-blur-xl">
     <nav aria-label="{{ __('saqr_public.nav.navigation') }}" class="saqr-container flex min-h-20 items-center justify-between gap-3 py-3">
         <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-3" aria-label="SAQR Motors">
-            <img src="{{ asset('images/logos/saqr-light.png') }}" class="h-11 w-auto max-w-24 object-contain" alt="SAQR Motors">
+            <img src="{{ asset('images/logos/saqr-dark.png') }}" class="h-11 w-auto max-w-24 object-contain" alt="SAQR Motors">
             <span class="hidden text-sm font-black uppercase tracking-[.3em] text-white 2xl:block">SAQR</span>
         </a>
         <div class="hidden items-center gap-4 text-sm font-semibold text-zinc-300 xl:flex 2xl:gap-5">
