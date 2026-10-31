@@ -15,7 +15,7 @@ The product is conceived for the **Middle East**, with **Egypt selected as the i
 | Admin / CMS | [Open `/admin`](https://saqr-motors-production-cnfjti.laravel.cloud/admin) |
 | Database ERD (image) | [erd.png](erd.png) |
 | Database ERD (PDF) | [SAQR_Motors_ERD.pdf](SAQR_Motors_ERD.pdf) |
-| Walkthrough video and ERD copies | [Google Drive — assessment materials](https://drive.google.com/drive/folders/150DTp4rYrs9pPBWFPoFm9oredbuj1s5V?usp=sharing) |
+| Walkthrough video  | [Google Drive — assessment materials](https://drive.google.com/drive/folders/150DTp4rYrs9pPBWFPoFm9oredbuj1s5V?usp=sharing) |
 | Figma | **Not used.** The interface was implemented directly using Blade, Tailwind CSS, Alpine.js, and Filament. |
 
 > **Demo availability:** The deployment runs on a resource-limited Laravel Cloud assessment environment, so an initial cold start may take a little longer. If possible, please review the hosted demo **within 30 days of submission**; continued hosting is not guaranteed indefinitely. The repository and setup instructions remain available independently of the live demo.
