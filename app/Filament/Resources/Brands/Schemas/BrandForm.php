@@ -12,6 +12,9 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use RuntimeException;
+use App\Support\DatabaseImages;
 
 
 class BrandForm
@@ -173,6 +176,7 @@ class BrandForm
         };
     }
 
+
     protected static function imageUpload(
         string $name,
         string $labelKey,
@@ -182,15 +186,41 @@ class BrandForm
         return FileUpload::make($name)
             ->label(__($labelKey))
             ->image()
+            ->acceptedFileTypes([
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+            ])
             ->disk('public')
             ->directory($directory)
             ->visibility('public')
             ->imagePreviewHeight('90')
             ->panelLayout('compact')
             ->maxSize($maxSize)
+            ->saveUploadedFileUsing(
+                fn (TemporaryUploadedFile $file): string =>
+                    DatabaseImages::store($file)
+            )
             ->fetchFileInformation(false)
-            ->getUploadedFileUsing(self::resolveStoredFile());
+            ->getUploadedFileUsing(self::resolveStoredFile())
+            ->saveUploadedFileUsing(
+                function (TemporaryUploadedFile $file) use ($directory): string {
+                    $path = $file->storePublicly($directory, 'public');
+
+                    if (
+                        ! is_string($path) ||
+                        ! Storage::disk('public')->exists($path)
+                    ) {
+                        throw new RuntimeException(
+                            "Failed to save image in {$directory}"
+                        );
+                    }
+
+                    return $path;
+                }
+            );
     }
+
 
     /**
      * Resolves both seeded static images (public/images/brands/*)
@@ -200,6 +230,9 @@ class BrandForm
     {
         return function (string $file): ?array {
             // Seeded images living in public/images/brands
+            if (str_starts_with($file, 'db-media/')) {
+                return DatabaseImages::fileInfo($file);
+            }
             if (str_starts_with($file, 'images/brands/')) {
                 $path = public_path($file);
 

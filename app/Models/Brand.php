@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
-
+use App\Support\DatabaseImages;
 class Brand extends Model
 {
     use HasFactory,TracksEditors;
@@ -47,6 +47,9 @@ class Brand extends Model
 
         if (blank($path)) {
             return null;
+        }
+        if (str_starts_with($path, 'db-media/')) {
+            return DatabaseImages::url($path);
         }
 
         if (filter_var($path, FILTER_VALIDATE_URL)) {
