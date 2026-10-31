@@ -16,7 +16,7 @@ class BrandUserSeeder extends Seeder
 
                 if (! $allowed) {
                     throw new RuntimeException(
-                        'Demo user seeding is disabled in this environment.'
+                        'Demo brand user seeding is disabled in this environment.'
                     );
                 }
         $email = env('SAQR_DATA_ENTRY_EMAIL');
