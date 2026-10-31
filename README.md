@@ -331,7 +331,7 @@ Do not copy the development `.env` or demo password configuration into a new pro
 - **Repository:** https://github.com/Gamalsobhy585/saqr-motors
 - **Hosted demo:** https://saqr-motors-production-cnfjti.laravel.cloud/
 - **Admin:** https://saqr-motors-production-cnfjti.laravel.cloud/admin
-- **Video / ERD folder:** https://drive.google.com/drive/folders/150DTp4rYrs9pPBWFPoFm9oredbuj1s5V?usp=sharing
+- **Video:** https://drive.google.com/drive/folders/150DTp4rYrs9pPBWFPoFm9oredbuj1s5V?usp=sharing
 - **ERD in repository:** [`erd.png`](erd.png) · [`SAQR_Motors_ERD.pdf`](SAQR_Motors_ERD.pdf)
 - **Figma prototype:** Not used.
 
