@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Filament\Resources\Brands\Pages;
@@ -27,7 +26,6 @@ class EditBrand extends EditRecord
                 continue;
             }
 
-            // Remove missing legacy images from the form state.
             if ($resolve($path) === null) {
                 $data[$field] = null;
             }
