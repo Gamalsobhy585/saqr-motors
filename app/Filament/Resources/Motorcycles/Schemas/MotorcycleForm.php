@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use App\Support\ResolvesPublicImages;
+use App\Support\MissingImagePaths;
 use App\Support\DatabaseImages;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class MotorcycleForm
@@ -240,6 +241,16 @@ Section::make(__('saqr.motorcycles.gallery'))
         Repeater::make('images')
             ->label(__('saqr.motorcycles.images'))
             ->relationship()
+            // Each existing gallery row is hydrated separately by Filament.
+            // Keep the row and its ID; clear only a missing legacy image path,
+            // so the user must upload a replacement before saving.
+            ->mutateRelationshipDataBeforeFillUsing(
+                fn (array $data): array => MissingImagePaths::clear(
+                    $data,
+                    'path',
+                    'images/motorcycles',
+                )
+            )
             ->orderColumn('sort_order')
             ->defaultItems(0)
             ->addActionLabel(__('saqr.motorcycles.add_image'))
