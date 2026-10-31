@@ -96,27 +96,27 @@ class AdminPanelProvider extends PanelProvider
 
             ])
 
-->middleware([
-    EncryptCookies::class,
-    AddQueuedCookiesToResponse::class,
-    StartSession::class,
-    AuthenticateSession::class,
-    ShareErrorsFromSession::class,
-    PreventRequestForgery::class,
-    SubstituteBindings::class,
-    DisableBladeIconComponents::class,
-    DispatchServingFilamentEvent::class,
-])
+            ->middleware([
+                EncryptCookies::class,
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                AuthenticateSession::class,
+                ShareErrorsFromSession::class,
+                PreventRequestForgery::class,
+                SubstituteBindings::class,
+                DisableBladeIconComponents::class,
+                DispatchServingFilamentEvent::class,
+            ])
 
-// Keep locale handling persistent for Livewire requests.
-->middleware([
-    SetLocale::class,
-], isPersistent: true)
+            // Keep locale handling persistent for Livewire requests.
+            ->middleware([
+                SetLocale::class,
+            ], isPersistent: true)
 
-// Keep authentication enforced on Livewire requests.
-->authMiddleware([
-    Authenticate::class,
-], isPersistent: true);
+            // Keep authentication enforced on Livewire requests.
+            ->authMiddleware([
+                Authenticate::class,
+            ], isPersistent: true);
 
     }
 }
