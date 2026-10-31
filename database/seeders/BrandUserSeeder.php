@@ -11,12 +11,14 @@ class BrandUserSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment(['local', 'testing'])) {
-            throw new RuntimeException(
-                'Demo brand assignments are local/testing only.'
-            );
-        }
+        $allowed = app()->environment(['local', 'testing'])
+                    || config('saqr_public.allow_demo_seeding') === true;
 
+                if (! $allowed) {
+                    throw new RuntimeException(
+                        'Demo user seeding is disabled in this environment.'
+                    );
+                }
         $email = env('SAQR_DATA_ENTRY_EMAIL');
 
         if (! $email) {
